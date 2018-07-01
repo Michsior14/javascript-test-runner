@@ -1,10 +1,9 @@
-import {getTestRunner} from '../runners/TestRunnerFactory'
+import { getTestRunner } from "../runners/TestRunnerFactory";
 
-async function runTest (rootPath, fileName, testName) {
-    const testRunner = await getTestRunner(rootPath)
+async function runTest(rootPath, fileName, testName) {
+  const testRunner = await getTestRunner(rootPath);
 
-    testRunner.runTest(testName, fileName)
+  testRunner.runTest(testName, fileName);
 }
 
-
-export default runTest
+export default runTest;

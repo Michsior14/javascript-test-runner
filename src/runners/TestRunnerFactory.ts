@@ -1,39 +1,50 @@
-import { exists } from 'fs'
-import { workspace, TerminalOptions, WorkspaceFolder } from 'vscode'
+import { exists } from "fs";
+import { WorkspaceFolder } from "vscode";
 
-import { TestRunnerInterface } from "../interfaces/TestRunnerInterface";
-import { JestTestRunner } from './JestTestRunner';
-import { MochaTestRunner } from './MochaTestRunner';
-import { TerminalProvider } from '../providers/TerminalProvider';
-import { ConfigurationProvider } from '../providers/ConfigurationProvider';
+import { ITestRunnerInterface } from "../interfaces/ITestRunnerInterface";
+import { ConfigurationProvider } from "../providers/ConfigurationProvider";
+import { TerminalProvider } from "../providers/TerminalProvider";
+import { JestTestRunner } from "./JestTestRunner";
+import { MochaTestRunner } from "./MochaTestRunner";
 
-const terminalProvider = new TerminalProvider()
-const configurationProvider = new ConfigurationProvider()
+const terminalProvider = new TerminalProvider();
+const configurationProvider = new ConfigurationProvider();
 
 function doesFileExist(filePath: string): Promise<boolean> {
-    return new Promise((resolve) => {
-        exists(filePath, (doesFileExist) => {
-            resolve(doesFileExist)
-        })
-    })
+  return new Promise(resolve => {
+    exists(filePath, doesExist => {
+      resolve(doesExist);
+    });
+  });
 }
 
-async function getAvailableTestRunner(testRunners: Array<TestRunnerInterface>): Promise<TestRunnerInterface> {
-    for (const runner of testRunners) {
-        const doesRunnerExist = await doesFileExist(runner.binPath)
+async function getAvailableTestRunner(
+  testRunners: ITestRunnerInterface[]
+): Promise<ITestRunnerInterface> {
+  for (const runner of testRunners) {
+    const doesRunnerExist = await doesFileExist(runner.binPath);
 
-        if (doesRunnerExist) {
-            return runner
-        }
+    if (doesRunnerExist) {
+      return runner;
     }
+  }
 
-    throw new Error('No test runner in your project. Please install one.')
+  throw new Error("No test runner in your project. Please install one.");
 }
 
+export async function getTestRunner(
+  rootPath: WorkspaceFolder
+): Promise<ITestRunnerInterface> {
+  const jestTestRunner = new JestTestRunner({
+    configurationProvider,
+    rootPath,
+    terminalProvider
+  });
+  const mochaTestRunner = new MochaTestRunner({
+    configurationProvider,
+    rootPath,
+    terminalProvider
+  });
 
-export async function getTestRunner(rootPath: WorkspaceFolder): Promise<TestRunnerInterface> {
-    const jestTestRunner = new JestTestRunner({rootPath, terminalProvider, configurationProvider })
-    const mochaTestRunner = new MochaTestRunner({rootPath, terminalProvider, configurationProvider })
-
-    return getAvailableTestRunner([jestTestRunner, mochaTestRunner])
+  return getAvailableTestRunner([jestTestRunner, mochaTestRunner]);
 }

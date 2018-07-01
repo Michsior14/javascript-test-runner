@@ -1,17 +1,17 @@
-import { workspace, WorkspaceConfiguration } from 'vscode'
+import { workspace, WorkspaceConfiguration } from "vscode";
 
 export class ConfigurationProvider {
-    configuration: WorkspaceConfiguration = null
+  public configuration: WorkspaceConfiguration = null;
 
-    constructor() {
-        this.configuration = workspace.getConfiguration("javascript-test-runner")
-    }
+  constructor() {
+    this.configuration = workspace.getConfiguration("javascript-test-runner");
+  }
 
-    get environmentVariables(): {} {
-        return this.configuration.get("envVars")
-    }
+  get environmentVariables(): {} {
+    return this.configuration.get("envVars");
+  }
 
-    get additionalArguments(): string {
-        return this.configuration.get("additionalArgs")
-    }
+  get additionalArguments(): string {
+    return this.configuration.get("additionalArgs");
+  }
 }
