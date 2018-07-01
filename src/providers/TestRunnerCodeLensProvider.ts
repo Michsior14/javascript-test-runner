@@ -4,7 +4,7 @@ import TestRunnerCodeLens from "../codelens/TestRunnerCodeLens"
 import TestDebugRunnerCodeLens from "../codelens/TestDebugRunnerCodeLens"
 import { codeParser } from "../parser/codeParser"
 
-function _getRootPath({uri}) {
+function getRootPath({uri}) {
     const fileUri = Uri.parse(uri.path)
     const activeWorkspace = workspace.getWorkspaceFolder(fileUri)
 
@@ -15,30 +15,42 @@ function _getRootPath({uri}) {
     return workspace.rootPath
 }
 
+function getCodeLens(rootPath, fileName, testName, startPosition) {
+    const testRunnerCodeLens = new TestRunnerCodeLens(
+        rootPath,
+        fileName,
+        testName,
+        startPosition
+    )
+
+    const debugRunnerCodeLens = new TestDebugRunnerCodeLens(
+        rootPath,
+        fileName,
+        testName,
+        startPosition
+    )
+
+    return [testRunnerCodeLens, debugRunnerCodeLens]
+}
+
 export default class TestRunnerCodeLensProvider implements CodeLensProvider {
-    public provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
+    provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
         const createRangeObject = ({line}) => document.lineAt(line - 1).range
-        const rootPath = _getRootPath(document)
+        const rootPath = getRootPath(document)
 
         return codeParser(document.getText())
-            .reduce((acc, {loc, testName}) => {
-                acc.push(new TestRunnerCodeLens(
-                    createRangeObject(loc.start),
-                    testName,
+            .reduce((acc, {loc, testName}) => [
+                ...acc,
+                ...getCodeLens(
                     rootPath,
-                    document.fileName
-                ))
-                acc.push(new TestDebugRunnerCodeLens(
-                    createRangeObject(loc.start),
+                    document.fileName,
                     testName,
-                    rootPath,
-                    document.fileName
-                ))
-                return acc
-            }, [])
+                    createRangeObject(loc.start)
+                )
+            ], [])
     }
 
-    public resolveCodeLens?(codeLens: CodeLens, token: CancellationToken): CodeLens | Thenable<CodeLens> {
+    resolveCodeLens?(codeLens: CodeLens, token: CancellationToken): CodeLens | Thenable<CodeLens> {
         return
     }
 }

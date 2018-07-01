@@ -1,11 +1,11 @@
-import { CodeLens, Range, Command } from 'vscode'
+import { CodeLens, Range } from 'vscode'
 
 export default class TestDebugRunnerCodeLens extends CodeLens {
-    constructor(range: Range, testName: string, rootPath: string, fileName: string) {
+    constructor(rootPath: string, fileName: string, testName: string, range: Range) {
         super(range, {
             title: 'Debug Test',
             command: 'javascript-test-runner.debug.test',
-            arguments: [testName, rootPath, fileName, true]
+            arguments: [rootPath, fileName, testName]
         })
     }
 }
