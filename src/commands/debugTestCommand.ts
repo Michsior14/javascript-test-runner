@@ -3,7 +3,7 @@ import { WorkspaceFolder } from "vscode";
 
 import { getTestRunner } from "../runners/TestRunnerFactory";
 
-async function runTest(
+async function debugTest(
   rootPath: WorkspaceFolder,
   fileName: string,
   testName: string
@@ -11,7 +11,7 @@ async function runTest(
   const relativeFilename = relative(rootPath.uri.path, fileName);
   const testRunner = await getTestRunner(rootPath);
 
-  testRunner.runTest(rootPath, relativeFilename, testName);
+  testRunner.debugTest(rootPath, relativeFilename, testName);
 }
 
-export default runTest;
+export default debugTest;
